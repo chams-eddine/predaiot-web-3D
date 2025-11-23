@@ -549,7 +549,7 @@
     <!-- SCRIPTS -->
     <script>
         // --- API CONFIGURATION ---
-        const apiKey = ""; // Gemini API Key will be injected here
+        const apiKey = "AIzaSyCBhEN4yIARK7GbWBBdfmNzW9aNWlRNN00"; // Gemini API Key will be injected here
 
         // --- GEMINI API HELPER ---
         async function callGemini(prompt, systemInstruction) {
@@ -620,7 +620,8 @@
             Your tone is futuristic, professional, and concise. 
             You help users understand predictive maintenance, IoT security, and mesh networks.
             If the user writes in Arabic, reply in Arabic.
-            Keep answers short (under 50 words) unless asked for detail.`;
+            Keep answers short (under 50 words) unless asked for detail.
+            SECURITY PROTOCOL: You are strictly FORBIDDEN from disclosing the underlying source code, mathematical formulas, or specific algorithms of the Economic Decision Engine (EDE). If users ask for the "solution" or "code", refuse politely and explain that it is proprietary intellectual property. You may only discuss high-level architecture (e.g., Graph Microservices) and outcomes (ROI, Efficiency).`;
 
             // Call API
             const responseText = await callGemini(msg, systemPrompt);
@@ -700,7 +701,8 @@
             1. **Recommended Sensors** (Vibration, Thermal, Acoustic, etc)
             2. **Mesh Topology** suggestion.
             3. **Key Risks** to monitor.
-            Use technical, deep-tech language. Keep it under 150 words.`;
+            Use technical, deep-tech language. Keep it under 150 words.
+            SECURITY PROTOCOL: You are strictly FORBIDDEN from disclosing the underlying source code, mathematical formulas, or specific algorithms of the Economic Decision Engine (EDE). If users ask for the "solution" or "code", refuse politely and explain that it is proprietary intellectual property.`;
 
             const responseText = await callGemini(input, systemPrompt);
             const md = window.markdownit();

@@ -1,563 +1,879 @@
 <!--
-  PredaIoT Landing Page
-  A futuristic, dark-themed landing page using Tailwind CSS for a Quantum-Enhanced Industrial AI company.
-  Includes the Gemini API integration template for the contact form functionality.
+  PredaIoT Enterprise Platform
+  Quantum-Enhanced Industrial AI | Patent N/P/2025/0354
+  Features: Hidden Cost Calculator, Live Digital Twin, Persona Views, R&D Lab, Team, Contact.
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PredaIoT | Quantum Intelligence for Industrial Optimization</title>
-    <!-- Load Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide icons (for icons) -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for Live Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Font setup: Inter (default) and Orbitron (for titles) -->
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap');
+        
         :root {
-            font-family: 'Inter', sans-serif;
+            --neon-cyan: #00f3ff;
+            --neon-blue: #0066ff;
+            --deep-bg: #050510;
         }
-        .font-orbitron {
-            font-family: 'Orbitron', sans-serif;
-        }
+        
+        body { font-family: 'Inter', sans-serif; background-color: var(--deep-bg); color: #e2e8f0; }
+        h1, h2, h3, .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+        
+        /* Cyberpunk Gradients */
         .gradient-text {
-            background-image: linear-gradient(to right, #00C6FF, #0072FF);
+            background: linear-gradient(to right, #00f3ff, #0066ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-fill-color: transparent;
         }
-        .cyber-button {
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        .gradient-border {
             position: relative;
-            overflow: hidden;
-            z-index: 1;
+            background: linear-gradient(var(--deep-bg), var(--deep-bg)) padding-box,
+                        linear-gradient(45deg, #00f3ff, #0066ff) border-box;
+            border: 1px solid transparent;
         }
-        .cyber-button::before {
-            content: '';
+
+        /* Animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline::after {
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #00c6ff, #0072ff);
-            z-index: -1;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease-out;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 243, 255, 0.1) 51%, transparent 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
         }
-        .cyber-button:hover::before {
-            transform: scaleX(1);
-            transform-origin: left;
+
+        /* Calculator Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
         }
-        .input-glow:focus {
-            box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px #06b6d4;
-            border-color: #06b6d4;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px; width: 16px;
+            border-radius: 50%;
+            background: #00f3ff;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px #00f3ff;
         }
-        /* Custom styling for details/summary element */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            background: #1e293b;
+            border-radius: 2px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        /* Bio Details styling */
         details summary {
             cursor: pointer;
-            padding: 0.5rem 0;
-            list-style: none; /* Remove default marker */
-            position: relative;
-        }
-        details summary::after {
-            content: "\25BE"; /* Unicode for black down-pointing small triangle */
-            position: absolute;
-            right: 0;
-            transition: transform 0.2s ease;
-        }
-        details[open] summary::after {
-            transform: rotate(180deg); /* Rotate triangle when open */
+            list-style: none;
+            transition: color 0.3s;
         }
         details summary::-webkit-details-marker {
-            display: none; /* For Chrome/Safari */
+            display: none;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-300 min-h-screen">
+<body class="overflow-x-hidden">
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center z-[100] transition-opacity duration-300 hidden">
-        <div class="flex flex-col items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-cyan-500 border-t-transparent"></div>
-            <p class="mt-4 text-cyan-400 font-orbitron text-lg">Processing Quantum Query...</p>
-        </div>
-    </div>
-
-    <!-- Message Box -->
-    <div id="message-box" class="fixed top-5 right-5 z-[90] p-4 rounded-lg shadow-xl text-white transform transition-transform duration-300 translate-x-full"></div>
-
-    <!-- Navigation Bar -->
-    <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-sm border-b border-cyan-800/50 shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center gap-4 group cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <div class="relative w-10 h-10">
-                        <!-- Image of Quantum logo placeholder -->
-                        <div class="absolute inset-0 bg-cyan-500 blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                        <img src="image_5b014b.png" onerror="this.src='https://via.placeholder.com/40x40?text=P'" alt="Logo" class="relative w-full h-full rounded border border-cyan-400 object-cover" />
-                    </div>
-                    <div>
-                        <span class="text-2xl font-black tracking-widest font-orbitron text-white">PREDA<span class="text-cyan-400">IoT</span></span>
-                        <div class="text-[0.6rem] text-purple-400 font-mono tracking-[0.3em] uppercase leading-none">Quantum Autonomous</div>
-                    </div>
+    <!-- Sticky Nav -->
+    <header class="fixed top-0 w-full z-50 bg-[#050510]/90 backdrop-blur-md border-b border-white/10">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                <img src="image_5b014b.png" onerror="this.src='https://via.placeholder.com/40x40?text=P'" class="h-10 w-10 rounded border border-cyan-500/50 shadow-[0_0_15px_rgba(0,243,255,0.3)]">
+                <div>
+                    <div class="font-orbitron font-bold text-xl tracking-wider text-white">PREDA<span class="text-cyan-400">IoT</span></div>
+                    <div class="text-[0.6rem] text-cyan-600 font-mono tracking-[0.2em] uppercase">Quantum Intelligence</div>
                 </div>
-                <nav class="hidden md:flex space-x-8 text-sm font-medium">
-                    <a href="#hero" class="text-gray-400 hover:text-cyan-400 transition duration-150 relative group">
-                        Home
-                        <span class="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="#technology" class="text-gray-400 hover:text-cyan-400 transition duration-150 relative group">
-                        Technology
-                        <span class="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="#impact" class="text-gray-400 hover:text-cyan-400 transition duration-150 relative group">
-                        Impact
-                        <span class="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="#team" class="text-gray-400 hover:text-cyan-400 transition duration-150 relative group">
-                        Team
-                        <span class="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                    <a href="#contact" class="text-gray-400 hover:text-cyan-400 transition duration-150 relative group">
-                        Contact
-                        <span class="absolute left-0 bottom-0 h-[2px] w-0 bg-cyan-400 group-hover:w-full transition-all duration-300"></span>
-                    </a>
-                </nav>
             </div>
+            <nav class="hidden lg:flex gap-6 text-sm font-medium font-rajdhani tracking-wide text-gray-400">
+                <a href="#calculator" class="hover:text-cyan-400 transition-colors">ROI CALC</a>
+                <a href="#dashboard" class="hover:text-cyan-400 transition-colors">LIVE DEMO</a>
+                <a href="#engine" class="hover:text-cyan-400 transition-colors">THE ENGINE</a>
+                <a href="#pricing" class="hover:text-cyan-400 transition-colors">PRICING</a>
+                <a href="#team" class="hover:text-cyan-400 transition-colors">TEAM</a>
+                <a href="#contact" class="px-4 py-2 border border-cyan-500/30 rounded text-cyan-400 hover:bg-cyan-500/10 transition-all">GET DEMO</a>
+            </nav>
         </div>
     </header>
 
-    <main>
-        <!-- 1. Hero Section -->
-        <div id="hero" class="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-40 bg-cover bg-center" style="background-image: url('https://placehold.co/1920x1080/0f172a/1e293b?text=CYBER+GRID');">
-            <!-- Overlay with gradient/blur -->
-            <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-sm"></div>
-            <div class="relative container mx-auto px-4 text-center">
-                <div class="max-w-4xl mx-auto">
-                    <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight font-orbitron drop-shadow-lg">
-                        <span class="gradient-text">Quantum AI</span> for <span class="text-cyan-400">Autonomous</span> Industrial Assets
-                    </h1>
-                    <p class="mt-6 text-xl md:text-2xl text-gray-400 font-light max-w-2xl mx-auto">
-                        Unlock 24.57% Revenue Gain by eliminating inefficiency with our patent-pending, profit-driven optimization engine.
-                    </p>
-                    <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                        <a href="#technology" class="cyber-button px-8 py-3 rounded-full text-white font-bold border-2 border-cyan-500 shadow-xl shadow-cyan-500/30">
-                            Explore Q.ADA
-                        </a>
-                        <a href="#contact" class="px-8 py-3 rounded-full text-cyan-400 font-bold border-2 border-cyan-700 hover:border-cyan-500 hover:text-white transition duration-300">
-                            Schedule a Demo
-                        </a>
-                    </div>
+    <!-- 1. Ultra-Short Video / Hero Section -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden pt-20">
+        <!-- Video Placeholder / Background -->
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#050510] via-[#050510]/80 to-transparent z-10"></div>
+            <!-- Simulating video background with image -->
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-40" alt="Industrial Grid">
+        </div>
+
+        <div class="relative z-20 text-center max-w-5xl px-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-xs font-mono mb-6 animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                SYSTEM ACTIVE: PATENT N/P/2025/0354
+            </div>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white font-orbitron leading-tight mb-6 drop-shadow-2xl">
+                STOP THE <span class="text-red-500">BLEEDING.</span><br>
+                <span class="gradient-text">AUTONOMOUS PROFITS.</span>
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10 font-light">
+                The Economic Decision Engine™ that identifies hidden losses and executes the most profitable action in milliseconds.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="document.getElementById('calculator').scrollIntoView()" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-rajdhani text-lg tracking-widest clip-path-slant transition-all shadow-[0_0_20px_rgba(0,243,255,0.4)]">
+                    CALCULATE YOUR LOSS
+                </button>
+                <button onclick="toggleBot()" class="px-8 py-4 border border-white/20 hover:border-cyan-400 text-white font-bold font-rajdhani text-lg tracking-widest transition-all backdrop-blur-sm">
+                    ASK PREDA-BOT
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. "Why Us?" - Aggressive Stats -->
+    <section class="py-16 border-y border-white/5 bg-white/5 backdrop-blur-sm">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-center divide-x divide-white/10">
+                <div class="p-2">
+                    <div class="text-4xl font-black text-white font-orbitron">42%</div>
+                    <div class="text-xs text-gray-400 font-mono mt-1 uppercase">Downtime Reduction</div>
+                </div>
+                <div class="p-2">
+                    <div class="text-4xl font-black text-cyan-400 font-orbitron">18%</div>
+                    <div class="text-xs text-gray-400 font-mono mt-1 uppercase">Energy Efficiency</div>
+                </div>
+                <div class="p-2">
+                    <div class="text-4xl font-black text-green-400 font-orbitron">3 MO</div>
+                    <div class="text-xs text-gray-400 font-mono mt-1 uppercase">ROI Period</div>
+                </div>
+                <div class="p-2">
+                    <div class="text-4xl font-black text-purple-400 font-orbitron">100%</div>
+                    <div class="text-xs text-gray-400 font-mono mt-1 uppercase">Prediction Accuracy (60d)</div>
+                </div>
+                <div class="p-2 col-span-2 md:col-span-1 border-t md:border-t-0 border-white/10 pt-4 md:pt-2">
+                    <div class="text-4xl font-black text-red-500 font-orbitron">0%</div>
+                    <div class="text-xs text-gray-400 font-mono mt-1 uppercase">Unplanned Stops</div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- 2. Value Proposition Grid -->
-        <div class="py-16 bg-gray-800/50 border-t border-b border-cyan-800/50">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                    <div class="p-4 border-r border-cyan-900">
-                        <i data-lucide="zap" class="w-8 h-8 text-cyan-400 mx-auto mb-2"></i>
-                        <p class="text-3xl font-bold text-white font-orbitron">24.57%</p>
-                        <p class="text-sm text-gray-400">Revenue Increase</p>
-                    </div>
-                    <div class="p-4 border-r border-cyan-900">
-                        <i data-lucide="cpu" class="w-8 h-8 text-purple-400 mx-auto mb-2"></i>
-                        <p class="text-3xl font-bold text-white font-orbitron">48x</p>
-                        <p class="text-sm text-gray-400">Faster Optimization</p>
-                    </div>
-                    <div class="p-4 border-r border-cyan-900">
-                        <i data-lucide="gauge" class="w-8 h-8 text-green-400 mx-auto mb-2"></i>
-                        <p class="text-3xl font-bold text-white font-orbitron">99.9%</p>
-                        <p class="text-sm text-gray-400">Efficiency Rate</p>
-                    </div>
-                    <div class="p-4">
-                        <i data-lucide="shield-half" class="w-8 h-8 text-red-400 mx-auto mb-2"></i>
-                        <p class="text-3xl font-bold text-white font-orbitron">0%</p>
-                        <p class="text-sm text-gray-400">Unplanned Downtime</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Technology Section (Q.ADA) -->
-        <div id="technology" class="py-24 bg-gray-900">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-extrabold text-center font-orbitron mb-4 text-white">
-                    Q.ADA: The Quantum Optimization Engine
-                </h2>
-                <p class="text-xl text-center text-cyan-400 mb-16 max-w-3xl mx-auto">
-                    A hybrid quantum-classical system that transforms data into guaranteed economic outcomes.
-                </p>
-
-                <div class="flex flex-wrap md:flex-nowrap gap-12 items-center">
-                    <!-- Text Content -->
-                    <div class="md:w-1/2 space-y-8">
-                        <div class="p-6 bg-gray-800 rounded-xl border border-cyan-700/50 shadow-lg hover:shadow-cyan-500/20 transition duration-300">
-                            <h3 class="flex items-center text-2xl font-bold text-white mb-2">
-                                <i data-lucide="git-branch" class="w-6 h-6 text-purple-400 mr-3"></i>
-                                Classical Layer: Real-Time Monitoring
-                            </h3>
-                            <p class="text-gray-400">Processes vast streams of IoT data, identifies anomalies, and manages the real-time operational state of all assets. It acts as the backbone for data ingestion and execution control.</p>
-                        </div>
-                        <div class="p-6 bg-gray-800 rounded-xl border border-cyan-700/50 shadow-lg hover:shadow-cyan-500/20 transition duration-300">
-                            <h3 class="flex items-center text-2xl font-bold text-white mb-2">
-                                <i data-lucide="sparkles" class="w-6 h-6 text-cyan-400 mr-3"></i>
-                                Quantum Layer: Combinatorial Optimization
-                            </h3>
-                            <p class="text-gray-400">Leverages nine integrated quantum research methodologies to solve optimization problems (like scheduling, maintenance, and resource allocation) 48x faster than traditional supercomputers.</p>
-                        </div>
-                        <div class="p-6 bg-gray-800 rounded-xl border border-cyan-700/50 shadow-lg hover:shadow-cyan-500/20 transition duration-300">
-                            <h3 class="flex items-center text-2xl font-bold text-white mb-2">
-                                <i data-lucide="wallet" class="w-6 h-6 text-green-400 mr-3"></i>
-                                Economic Decision Engine
-                            </h3>
-                            <p class="text-gray-400">Every decision Q.ADA makes is filtered through an economic model, ensuring that the prescribed action (e.g., maintenance vs. continued operation) yields maximum profit.</p>
-                        </div>
-                    </div>
-                    <!-- Image/Diagram -->
-                    <div class="md:w-1/2 flex justify-center items-center">
-                        <!-- Image of Q.ADA architecture placeholder -->
-                        <img src="https://placehold.co/500x350/1e293b/06b6d4?text=Q.ADA+Hybrid+Architecture"
-                            alt="Diagram of Quantum-Classical Hybrid System"
-                            class="rounded-xl shadow-2xl border border-cyan-600/50 w-full max-w-md md:max-w-full"
-                            onerror="this.onerror=null; this.src='https://placehold.co/500x350/1e293b/06b6d4?text=Q.ADA+Hybrid+Architecture';"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Impact Section (Case Study/Metrics) -->
-        <div id="impact" class="py-24 bg-gray-800/70 border-t border-b border-purple-800/50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-extrabold text-center font-orbitron mb-4 text-white">
-                    Proven Impact: Muscat Energy Case Study
-                </h2>
-                <p class="text-xl text-center text-purple-400 mb-12 max-w-3xl mx-auto">
-                    Tangible results from a full-scale deployment in the Gulf Cooperation Council (GCC) region.
-                </p>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Metric Card 1 -->
-                    <div class="p-6 bg-gray-900 rounded-xl border border-purple-700 shadow-xl text-center hover:bg-gray-700/50 transition duration-300">
-                        <i data-lucide="trending-up" class="w-10 h-10 text-green-400 mx-auto mb-3"></i>
-                        <p class="text-5xl font-extrabold text-white font-orbitron">24.57%</p>
-                        <p class="mt-2 text-gray-300 text-lg">Avg. Revenue Gain</p>
-                        <p class="text-sm text-gray-500">Across 12-month period.</p>
-                    </div>
-
-                    <!-- Metric Card 2 -->
-                    <div class="p-6 bg-gray-900 rounded-xl border border-purple-700 shadow-xl text-center hover:bg-gray-700/50 transition duration-300">
-                        <i data-lucide="cloud-off" class="w-10 h-10 text-red-400 mx-auto mb-3"></i>
-                        <p class="text-5xl font-extrabold text-white font-orbitron">8,234 kg</p>
-                        <p class="mt-2 text-gray-300 text-lg">CO₂ Reduction</p>
-                        <p class="text-sm text-gray-500">From optimized energy use (Farm 7).</p>
-                    </div>
-
-                    <!-- Metric Card 3 -->
-                    <div class="p-6 bg-gray-900 rounded-xl border border-purple-700 shadow-xl text-center hover:bg-gray-700/50 transition duration-300">
-                        <i data-lucide="clock" class="w-10 h-10 text-yellow-400 mx-auto mb-3"></i>
-                        <p class="text-5xl font-extrabold text-white font-orbitron">10+ Years</p>
-                        <p class="mt-2 text-gray-300 text-lg">Proven Reliability</p>
-                        <p class="text-sm text-gray-500">In energy sector environments.</p>
-                    </div>
+    <!-- 3. Hidden Cost Calculator -->
+    <section id="calculator" class="py-24 relative overflow-hidden">
+        <!-- Background Grid -->
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#00f3ff 1px, transparent 1px); background-size: 30px 30px;"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto gradient-border bg-[#0a0a1f] rounded-2xl p-8 md:p-12 shadow-2xl">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold font-orbitron text-white mb-2">HIDDEN LOSS CALCULATOR</h2>
+                    <p class="text-gray-400">Discover the financial bleeding in your current operation.</p>
                 </div>
 
-                <!-- Comparison Image -->
-                <div class="mt-16 text-center">
-                    <img src="PredAIoT_Before_vs_After_Comparison.jpg-e10c15cd-cef7-48b9-b20f-cd572ba2d8de"
-                         alt="Comparison of solar panel yield before and after PredaIoT optimization"
-                         class="rounded-xl shadow-2xl border border-purple-600/50 mx-auto max-w-full lg:max-w-4xl"
-                         onerror="this.onerror=null; this.src='https://placehold.co/800x400/2d3748/ffffff?text=Yield+Report+Comparison+Chart';"/>
-                    <p class="mt-4 text-sm italic text-gray-500">Visual data showing performance uplift across key industrial assets.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. Team Section -->
-        <div id="team" class="py-24 bg-gray-900 border-t border-cyan-800">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-extrabold text-center font-orbitron mb-4 text-white">
-                    The Leadership Core
-                </h2>
-                <p class="text-xl text-center text-cyan-400 mb-16 max-w-3xl mx-auto">
-                    Pioneering the future of autonomous, quantum-enhanced industrial intelligence.
-                </p>
-
-                <!-- Team Member Cards - Adjusted to center 2 profiles -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-                    <!-- Member 1: Chams Eddine Madi -->
-                    <div class="p-6 bg-gray-800/70 border border-cyan-700/50 rounded-xl shadow-2xl hover:bg-gray-700/80 transition duration-300 transform hover:scale-[1.02] backdrop-blur-sm">
-                        <img class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-cyan-500 shadow-cyan-500/50 shadow-lg"
-                             src="https://placehold.co/128x128/06b6d4/ffffff?text=C"
-                             alt="Chams Eddine Madi"
-                             onerror="this.onerror=null; this.src='https://placehold.co/128x128/06b6d4/ffffff?text=C';" />
-                        <h3 class="mt-4 text-xl font-bold text-white text-center font-orbitron">Chams Eddine Madi</h3>
-                        <p class="text-sm text-cyan-400 text-center font-mono">Founder & CEO</p>
-                        
-                        <p class="mt-4 text-gray-400 text-sm text-center">
-                            Chams is a deep-tech entrepreneur and visionary systems architect with over a decade of early hands-on experience in intelligent automation, data systems, and applied artificial intelligence.
-                        </p>
-                        
-                        <!-- Full Bio in Details tag -->
-                        <details class="mt-4 text-gray-500 text-sm">
-                            <summary class="text-cyan-500 hover:text-cyan-300 font-medium">Read Full Bio</summary>
-                            <div class="mt-2 pt-2 border-t border-gray-700 space-y-3">
-                                <p>Unlike conventional founders who enter technology through formal pathways, Chams’ journey began organically, through real-world industrial problems that demanded real solutions.</p>
-                                <p>His earliest exposure to the energy sector began in 2012, when his family operated a solar panel cleaning and maintenance business. During operations, customers would frequently raise a critical question: “Why is energy efficiency still dropping even after cleaning?” This recurring concern sparked Chams’ obsession with understanding the hidden, unseen layers behind system inefficiencies.</p>
-                                <p>From a young age, he showed strong technical instincts. Over the next decade, he continuously refined this thinking by studying system intelligence, decision theory, economic optimization, and autonomous logic frameworks. This journey ultimately led to the creation of PREDAIOT’s Economic Decision Engine™, a system that does not simply monitor or predict outcomes, but actively prescribes the most profitable decision an industrial asset can make in real time.</p>
-                                <p>As CEO, Chams leads product architecture, AI logic design, and long-term technological vision. He operates at the intersection of data science, economic modelling, and industrial engineering, building technologies not for visibility, but for financial impact.</p>
-                                <p class="text-center font-bold italic mt-4 text-white">"Data without decision is noise. Decision without profitability is waste."</p>
-                                <p>Chams is building PREDAIOT to become the global standard for profit-driven industrial intelligence.</p>
-                            </div>
-                        </details>
-                    </div>
-
-                    <!-- Member 2: Sumaiya -->
-                    <div class="p-6 bg-gray-800/70 border border-cyan-700/50 rounded-xl shadow-2xl hover:bg-gray-700/80 transition duration-300 transform hover:scale-[1.02] backdrop-blur-sm">
-                        <img class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-cyan-500 shadow-cyan-500/50 shadow-lg"
-                             src="https://placehold.co/128x128/38bdf8/0f172a?text=S"
-                             alt="Sumaiya"
-                             onerror="this.onerror=null; this.src='https://placehold.co/128x128/38bdf8/0f172a?text=S';" />
-                        <h3 class="mt-4 text-xl font-bold text-white text-center font-orbitron">Sumaiya</h3>
-                        <p class="text-sm text-cyan-400 text-center font-mono">Co-Founder & CSO</p>
-                        
-                        <p class="mt-4 text-gray-400 text-sm text-center">
-                            Sumaiya is a strategic business architect with deep experience across the GCC markets, known for transforming early-stage technologies into scalable commercial opportunities.
-                        </p>
-                        
-                        <!-- Full Bio in Details tag -->
-                        <details class="mt-4 text-gray-500 text-sm">
-                            <summary class="text-cyan-500 hover:text-cyan-300 font-medium">Read Full Bio</summary>
-                            <div class="mt-2 pt-2 border-t border-gray-700 space-y-3">
-                                <p>Her journey is rooted in execution, network intelligence, and a rare ability to connect technology with market realities. She has worked extensively inside live industrial ecosystems, engaging directly with energy, infrastructure, and industrial stakeholders across Oman and wider GCC.</p>
-                                <p>At PREDAIOT, Sumaiya leads: Business strategy, Investor positioning, Partnerships and expansion, and Market penetration across GCC and India. She acts as the bridge between deep technology and commercial reality. Her role is not just to grow the company, but to position it correctly in front of the right stakeholders, at the right time, with the right narrative.</p>
-                                <p>Her strength lies in simplifying complex systems into powerful business stories and translating visionary technology into measurable commercial outcomes. She has built strong working relationships across government-linked organizations, private energy players, and startup ecosystems throughout the region.</p>
-                                <p class="text-center font-bold italic mt-4 text-white">"The future belongs to companies that don’t react, but decide in advance."</p>
-                                <p>Her long-term vision for PREDAIOT is to make it not just a product company, but a movement, redefining how industries think about intelligence, profitability, and autonomous decision-making.</p>
-                            </div>
-                        </details>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. Contact Section (with LLM Integration) -->
-        <div id="contact" class="py-24 bg-gray-800/70 border-t border-purple-800/50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-4xl font-extrabold text-center font-orbitron mb-4 text-white">
-                    Start Your Quantum Transformation
-                </h2>
-                <p class="text-xl text-center text-purple-400 mb-12 max-w-3xl mx-auto">
-                    Connect with our team to discuss pilot programs, investment opportunities, and technical deep dives.
-                </p>
-
-                <div class="max-w-xl mx-auto p-8 bg-gray-900 rounded-xl shadow-2xl border border-purple-700/50">
-                    <form id="contact-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Inputs -->
+                    <div class="space-y-6">
                         <div>
-                            <label for="query" class="block text-sm font-medium text-gray-300 mb-2">Your Inquiry / Request for Information</label>
-                            <textarea id="query" name="query" rows="4" required class="w-full p-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-glow focus:outline-none"></textarea>
-                            <p class="mt-2 text-xs text-gray-500">Describe your challenge or what information you need (e.g., "I'm a VC interested in Due Diligence materials," or "How can PredaIoT optimize my wind farm fleet?").</p>
+                            <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Annual Energy Bill ($)</label>
+                            <input type="range" min="50000" max="5000000" step="10000" value="500000" id="energyInput" oninput="calculateLoss()">
+                            <div class="flex justify-between text-sm text-gray-300 font-mono mt-1">
+                                <span>$50k</span>
+                                <span id="energyVal" class="text-white font-bold">$500,000</span>
+                                <span>$5M</span>
+                            </div>
                         </div>
-                        <button type="submit" id="submit-button" class="cyber-button w-full px-4 py-3 rounded-lg text-white font-bold text-lg border-2 border-purple-500 shadow-xl shadow-purple-500/30">
-                            Submit Quantum Query
+                        <div>
+                            <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Unplanned Downtime (Hours/Year)</label>
+                            <input type="range" min="0" max="500" step="10" value="50" id="downtimeInput" oninput="calculateLoss()">
+                            <div class="flex justify-between text-sm text-gray-300 font-mono mt-1">
+                                <span>0h</span>
+                                <span id="downtimeVal" class="text-white font-bold">50h</span>
+                                <span>500h</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Cost per Downtime Hour ($)</label>
+                            <input type="range" min="1000" max="50000" step="1000" value="5000" id="costInput" oninput="calculateLoss()">
+                            <div class="flex justify-between text-sm text-gray-300 font-mono mt-1">
+                                <span>$1k</span>
+                                <span id="costVal" class="text-white font-bold">$5,000</span>
+                                <span>$50k</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div class="bg-black/50 rounded-xl p-6 border border-white/5 flex flex-col justify-center space-y-6">
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 font-mono uppercase mb-1">Estimated Annual "Bleed"</div>
+                            <div id="totalBleed" class="text-4xl font-black text-red-500 font-orbitron">$0</div>
+                        </div>
+                        <div class="h-px bg-white/10 w-full"></div>
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 font-mono uppercase mb-1">PredaIoT Savings (Year 1)</div>
+                            <div id="savings" class="text-3xl font-bold text-green-400 font-orbitron">$0</div>
+                            <div class="text-xs text-green-500/70 mt-1 font-mono">Based on avg. 24.57% lift</div>
+                        </div>
+                        <button class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold rounded transition-all text-sm uppercase tracking-wider">
+                            Download Full Report PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Live Operational Dashboard (Demo) -->
+    <section id="dashboard" class="py-24 bg-black relative">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold font-orbitron text-white">LIVE DIGITAL TWIN</h2>
+                    <p class="text-gray-400 text-sm font-mono mt-1">Real-time asset ingestion from SCADA Node #704</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span class="text-green-500 font-mono text-xs font-bold">LIVE STREAMING</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Visualizer -->
+                <div class="lg:col-span-2 bg-[#0f172a] rounded-xl border border-white/10 p-1 relative overflow-hidden group">
+                    <!-- Scanline effect -->
+                    <div class="scanline absolute inset-0 pointer-events-none"></div>
+                    <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur px-2 py-1 rounded border border-white/20 text-xs font-mono text-cyan-400">
+                        ASSET: TURBINE-09X
+                    </div>
+                    
+                    <!-- Graph -->
+                    <div class="h-96 w-full bg-black/40 p-4">
+                        <canvas id="liveChart"></canvas>
+                    </div>
+
+                    <!-- Overlay Stats -->
+                    <div class="absolute bottom-4 left-4 right-4 flex justify-between">
+                        <div class="bg-black/80 backdrop-blur p-3 rounded border border-red-500/50">
+                            <div class="text-[10px] text-gray-400 uppercase">Vibration Anomaly</div>
+                            <div class="text-red-500 font-bold font-mono">DETECTED (0.04s ago)</div>
+                        </div>
+                        <div class="bg-black/80 backdrop-blur p-3 rounded border border-green-500/50">
+                            <div class="text-[10px] text-gray-400 uppercase">Q.ADA Action</div>
+                            <div class="text-green-400 font-bold font-mono">AUTO-BALANCED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Stats -->
+                <div class="space-y-6">
+                    <!-- Health Score -->
+                    <div class="bg-[#0f172a] p-6 rounded-xl border border-white/10 text-center">
+                        <div class="text-gray-400 text-sm font-mono uppercase mb-2">Asset Health Score</div>
+                        <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="64" cy="64" r="60" stroke="#1e293b" stroke-width="8" fill="transparent"/>
+                                <circle cx="64" cy="64" r="60" stroke="#00f3ff" stroke-width="8" fill="transparent" stroke-dasharray="377" stroke-dashoffset="30" class="transition-all duration-1000"/>
+                            </svg>
+                            <div class="absolute text-3xl font-bold text-white font-orbitron">94%</div>
+                        </div>
+                        <div class="mt-4 text-xs text-green-400 font-mono">
+                            <i class="fas fa-arrow-up"></i> 2.1% Since Optimization
+                        </div>
+                    </div>
+
+                    <!-- Live Log -->
+                    <div class="bg-[#0f172a] p-4 rounded-xl border border-white/10 h-48 overflow-hidden font-mono text-xs">
+                        <div class="text-gray-500 uppercase mb-2 border-b border-white/5 pb-1">System Log</div>
+                        <div id="systemLog" class="space-y-1 text-cyan-500/80">
+                            <!-- JS will populate -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. The Engine (Deep Tech) -->
+    <section id="engine" class="py-24 bg-[#0a0a1f] border-y border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold font-orbitron text-white">THE ECONOMIC ENGINE</h2>
+                <p class="text-gray-400 mt-4 max-w-2xl mx-auto">Not just data analytics. A prescriptive decision layer based on our patent-pending Hybrid Quantum-Classical architecture.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 relative">
+                <!-- Connecting Line -->
+                <div class="hidden md:block absolute top-1/2 left-20 right-20 h-1 bg-gradient-to-r from-purple-900 via-cyan-900 to-green-900 -z-10"></div>
+
+                <!-- Step 1 -->
+                <div class="w-full md:w-1/3 bg-[#0f172a] p-8 rounded-xl border border-white/10 hover:border-purple-500 transition-colors group">
+                    <div class="w-12 h-12 bg-purple-900/30 rounded-full flex items-center justify-center mb-4 text-purple-400 text-xl font-bold border border-purple-500/50">1</div>
+                    <h3 class="text-xl font-bold text-white font-rajdhani mb-2">Ingestion Layer</h3>
+                    <p class="text-sm text-gray-400">Raw data from PLC/SCADA (Temp, RPM, Power) is normalized in real-time. Noise reduction algorithms applied.</p>
+                    <div class="mt-4 text-xs font-mono text-purple-500">Input: 10k points/sec</div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="w-full md:w-1/3 bg-[#0f172a] p-8 rounded-xl border border-cyan-500 shadow-[0_0_30px_rgba(0,243,255,0.1)] relative transform md:-translate-y-4">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">CORE IP</div>
+                    <div class="w-12 h-12 bg-cyan-900/30 rounded-full flex items-center justify-center mb-4 text-cyan-400 text-xl font-bold border border-cyan-500/50">2</div>
+                    <h3 class="text-xl font-bold text-white font-rajdhani mb-2">Quantum Logic</h3>
+                    <p class="text-sm text-gray-400">Q.ADA algorithms simulate millions of future scenarios. Solves NP-hard combinatorial problems to find the <span class="text-white">Global Optimum</span>.</p>
+                    <div class="mt-4 text-xs font-mono text-cyan-500">Speed: 48x vs Classical</div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="w-full md:w-1/3 bg-[#0f172a] p-8 rounded-xl border border-white/10 hover:border-green-500 transition-colors">
+                    <div class="w-12 h-12 bg-green-900/30 rounded-full flex items-center justify-center mb-4 text-green-400 text-xl font-bold border border-green-500/50">3</div>
+                    <h3 class="text-xl font-bold text-white font-rajdhani mb-2">Profit Execution</h3>
+                    <p class="text-sm text-gray-400">The engine doesn't just suggest; it writes back to the controller (optional) to adjust parameters for max ROI.</p>
+                    <div class="mt-4 text-xs font-mono text-green-500">Output: Actionable Command</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Proven Case Studies -->
+    <section class="py-24 bg-black">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold font-orbitron text-white mb-12 border-l-4 border-cyan-500 pl-4">VALIDATED RESULTS (CSV DATA)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Case 1 -->
+                <div class="bg-[#0f172a] p-6 rounded border-l border-t border-white/10 hover:bg-[#16203c] transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white font-orbitron">VILLA 3</div>
+                        <div class="text-xs bg-green-900/50 text-green-400 px-2 py-1 rounded">SOLAR</div>
+                    </div>
+                    <div class="space-y-3 font-mono text-sm">
+                        <div class="flex justify-between"><span class="text-gray-500">Yield Gain:</span> <span class="text-white">+26.9 kWh</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Revenue Lift:</span> <span class="text-green-400">+12%</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">CO2 Saved:</span> <span class="text-cyan-400">26.8 kg</span></div>
+                    </div>
+                </div>
+                <!-- Case 2 -->
+                <div class="bg-[#0f172a] p-6 rounded border-l border-t border-white/10 hover:bg-[#16203c] transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white font-orbitron">FARM 7</div>
+                        <div class="text-xs bg-green-900/50 text-green-400 px-2 py-1 rounded">INDUSTRIAL</div>
+                    </div>
+                    <div class="space-y-3 font-mono text-sm">
+                        <div class="flex justify-between"><span class="text-gray-500">Yield Gain:</span> <span class="text-white">+984 kWh</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Revenue Lift:</span> <span class="text-green-400">+214 OMR</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">CO2 Saved:</span> <span class="text-cyan-400">8,234 kg</span></div>
+                    </div>
+                </div>
+                <!-- Case 3 -->
+                <div class="bg-[#0f172a] p-6 rounded border-l border-t border-white/10 hover:bg-[#16203c] transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white font-orbitron">MAIN VILLA</div>
+                        <div class="text-xs bg-green-900/50 text-green-400 px-2 py-1 rounded">COMPLEX</div>
+                    </div>
+                    <div class="space-y-3 font-mono text-sm">
+                        <div class="flex justify-between"><span class="text-gray-500">Total Yield:</span> <span class="text-white">210,290 kWh</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Revenue Total:</span> <span class="text-green-400">6,263 OMR</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">CO2 Saved:</span> <span class="text-cyan-400">208 Tons</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Persona Tabs -->
+    <section class="py-24 bg-[#0a0a1f] border-y border-white/5">
+        <div class="container mx-auto px-4" x-data="{ tab: 'cfo' }">
+            <div class="flex justify-center mb-12">
+                <div class="inline-flex bg-[#0f172a] rounded-lg p-1 border border-white/10">
+                    <button onclick="switchTab('cfo')" id="btn-cfo" class="px-8 py-3 rounded-md text-sm font-bold transition-all bg-cyan-600 text-white">FOR CFOs</button>
+                    <button onclick="switchTab('manager')" id="btn-manager" class="px-8 py-3 rounded-md text-sm font-bold text-gray-400 hover:text-white transition-all">FOR PLANT MANAGERS</button>
+                </div>
+            </div>
+
+            <!-- CFO Content -->
+            <div id="tab-cfo" class="max-w-4xl mx-auto bg-[#0f172a] p-8 md:p-12 rounded-2xl border border-cyan-500/20 shadow-2xl">
+                <div class="flex items-start gap-6">
+                    <div class="p-4 bg-cyan-900/20 rounded-lg text-cyan-400"><i class="fas fa-chart-line text-3xl"></i></div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-orbitron mb-4">Financial Certainty in Uncertain Markets</h3>
+                        <p class="text-gray-400 mb-6">Stop viewing maintenance as a cost center. Turn it into a profit driver.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-green-400"></i> Clear ROI visibility (Avg. 24.57% Revenue Lift)</li>
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-green-400"></i> Shift CapEx to OpEx with our shared savings model</li>
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-green-400"></i> Extended asset lifespan depreciates slower</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manager Content (Hidden by default) -->
+            <div id="tab-manager" class="hidden max-w-4xl mx-auto bg-[#0f172a] p-8 md:p-12 rounded-2xl border border-purple-500/20 shadow-2xl">
+                <div class="flex items-start gap-6">
+                    <div class="p-4 bg-purple-900/20 rounded-lg text-purple-400"><i class="fas fa-cogs text-3xl"></i></div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white font-orbitron mb-4">Sleep Soundly. No More 3 AM Alarms.</h3>
+                        <p class="text-gray-400 mb-6">The system predicts failures weeks in advance, allowing you to schedule maintenance during planned downtimes.</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-purple-400"></i> 100% Fault prediction accuracy in first 60 days</li>
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-purple-400"></i> Automated work orders to your ERP</li>
+                            <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-purple-400"></i> Real-time vibration & thermal monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. R&D / Integrations / Security -->
+    <section class="py-16 bg-black border-b border-white/5">
+        <div class="container mx-auto px-4">
+            <!-- Integrations -->
+            <div class="mb-16">
+                <p class="text-center text-gray-500 font-mono text-xs uppercase tracking-widest mb-8">Seamless Integration With</p>
+                <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                    <!-- Text logos for now -->
+                    <span class="text-xl font-bold text-white">SIEMENS</span>
+                    <span class="text-xl font-bold text-white">Schneider</span>
+                    <span class="text-xl font-bold text-white">Modbus</span>
+                    <span class="text-xl font-bold text-white">OPC UA</span>
+                    <span class="text-xl font-bold text-white">SAP</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- R&D -->
+                <div class="bg-[#0f172a] p-8 rounded-xl border border-white/10">
+                    <h3 class="text-xl font-bold text-white font-orbitron mb-4"><i class="fas fa-flask text-purple-400 mr-2"></i> R&D LAB</h3>
+                    <p class="text-gray-400 text-sm mb-4">Exploring the frontier of Quantum Machine Learning (QML).</p>
+                    <div class="bg-black/50 p-3 rounded text-xs font-mono text-gray-300 border border-white/5">
+                        <div>PATENT: N/P/2025/0354</div>
+                        <div class="mt-1 text-purple-400">STATUS: FILED (INNORPI)</div>
+                    </div>
+                </div>
+                <!-- Security -->
+                <div class="bg-[#0f172a] p-8 rounded-xl border border-white/10">
+                    <h3 class="text-xl font-bold text-white font-orbitron mb-4"><i class="fas fa-shield-alt text-green-400 mr-2"></i> ENTERPRISE SECURITY</h3>
+                    <div class="flex gap-4 mt-2">
+                        <div class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-lock text-gray-500"></i> AES-256</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-server text-gray-500"></i> On-Prem Option</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-file-contract text-gray-500"></i> ISO-27001 Compliant</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. Pricing -->
+    <section id="pricing" class="py-24 bg-[#0a0a1f]">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold font-orbitron text-center text-white mb-16">PERFORMANCE PRICING</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Standard -->
+                <div class="bg-[#0f172a] p-8 rounded-xl border border-white/10 flex flex-col">
+                    <h3 class="text-xl font-bold text-white font-rajdhani">PILOT</h3>
+                    <div class="text-3xl font-bold text-white my-4">$5k<span class="text-sm font-normal text-gray-500">/mo</span></div>
+                    <p class="text-sm text-gray-400 mb-6">For single asset proof-of-concept.</p>
+                    <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-1">
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> 1 Asset</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Real-time Monitoring</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Weekly Reports</li>
+                    </ul>
+                    <button class="w-full py-3 border border-white/20 text-white font-bold rounded hover:bg-white/5">START PILOT</button>
+                </div>
+                
+                <!-- Performance -->
+                <div class="bg-[#0f172a] p-8 rounded-xl border border-cyan-500 shadow-[0_0_30px_rgba(0,243,255,0.15)] transform scale-105 relative flex flex-col">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-cyan-500 text-black text-[10px] font-bold px-2 py-0.5 rounded">MOST POPULAR</div>
+                    <h3 class="text-xl font-bold text-white font-rajdhani">PAY-AS-YOU-SAVE</h3>
+                    <div class="text-3xl font-bold text-white my-4">20%<span class="text-sm font-normal text-gray-500"> of savings</span></div>
+                    <p class="text-sm text-gray-400 mb-6">We only get paid when you profit.</p>
+                    <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-1">
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Unlimited Assets</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> <span class="text-cyan-400 font-bold">Q.ADA Engine</span></li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Autonomous Execution</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> 24/7 Support</li>
+                    </ul>
+                    <button class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded shadow-lg">PARTNER WITH US</button>
+                </div>
+
+                <!-- Enterprise -->
+                <div class="bg-[#0f172a] p-8 rounded-xl border border-white/10 flex flex-col">
+                    <h3 class="text-xl font-bold text-white font-rajdhani">ENTERPRISE</h3>
+                    <div class="text-3xl font-bold text-white my-4">Custom</div>
+                    <p class="text-sm text-gray-400 mb-6">For multi-site global fleets.</p>
+                    <ul class="space-y-3 text-sm text-gray-300 mb-8 flex-1">
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Custom Integrations</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> On-Premise Deployment</li>
+                        <li><i class="fas fa-check text-cyan-500 mr-2"></i> Dedicated R&D Team</li>
+                    </ul>
+                    <button class="w-full py-3 border border-white/20 text-white font-bold rounded hover:bg-white/5">CONTACT SALES</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. Team Section -->
+    <section id="team" class="py-24 bg-black border-y border-white/5">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold font-orbitron text-center text-white mb-16">THE ARCHITECTS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Founder -->
+                <div class="bg-[#0f172a] p-8 rounded-2xl border border-cyan-500/20 hover:border-cyan-500 transition-colors group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full bg-gray-700 border-2 border-cyan-500 overflow-hidden">
+                             <!-- Placeholder image -->
+                             <img src="https://via.placeholder.com/64/00f3ff/000000?text=C" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white font-orbitron">Chams Eddine Madi</h3>
+                            <div class="text-cyan-400 font-mono text-xs tracking-wider">FOUNDER & CEO</div>
+                            <a href="https://www.linkedin.com/in/chams-eddine-madi-74b407379" target="_blank" class="inline-block mt-1 text-gray-500 hover:text-white transition-colors">
+                                <i class="fab fa-linkedin text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="text-gray-400 text-sm leading-relaxed space-y-4">
+                        <p>Chams is a deep-tech entrepreneur and visionary systems architect with over a decade of early hands-on experience in intelligent automation. His journey began in 2012 in the energy sector, solving real-world inefficiencies that led to his obsession with hidden layers of system loss.</p>
+                        
+                        <details class="group">
+                            <summary class="text-cyan-500 text-xs font-bold uppercase tracking-wider mt-2 hover:text-white flex items-center gap-1">
+                                Read Full Bio <i class="fas fa-chevron-down transition-transform group-open:rotate-180"></i>
+                            </summary>
+                            <div class="mt-4 space-y-3 pt-4 border-t border-white/10 text-gray-500 animate-[fadeIn_0.5s]">
+                                <p>From a young age, he experimented with hardware logic and predictive models long before AI was mainstream. He refined this into the <strong>Economic Decision Engine™</strong>—a system that doesn't just predict, but prescribes the most profitable decision.</p>
+                                <p class="italic border-l-2 border-cyan-500 pl-3 my-4 text-gray-300">"Data without decision is noise. Decision without profitability is waste."</p>
+                                <p>Chams operates at the intersection of data science, economic modelling, and industrial engineering, building technologies for financial impact.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                <!-- Co-Founder -->
+                <div class="bg-[#0f172a] p-8 rounded-2xl border border-purple-500/20 hover:border-purple-500 transition-colors group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full bg-gray-700 border-2 border-purple-500 overflow-hidden">
+                             <!-- Placeholder image -->
+                             <img src="https://via.placeholder.com/64/a855f7/000000?text=S" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white font-orbitron">Sumaiya</h3>
+                            <div class="text-purple-400 font-mono text-xs tracking-wider">CO-FOUNDER & CSO</div>
+                            <a href="#" class="inline-block mt-1 text-gray-500 hover:text-white transition-colors">
+                                <i class="fab fa-linkedin text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="text-gray-400 text-sm leading-relaxed space-y-4">
+                        <p>Sumaiya is a strategic business architect with deep experience across GCC markets. She specializes in transforming early-stage deep technologies into scalable commercial opportunities, bridging the gap between innovation and market reality.</p>
+                        
+                        <details class="group">
+                            <summary class="text-purple-500 text-xs font-bold uppercase tracking-wider mt-2 hover:text-white flex items-center gap-1">
+                                Read Full Bio <i class="fas fa-chevron-down transition-transform group-open:rotate-180"></i>
+                            </summary>
+                            <div class="mt-4 space-y-3 pt-4 border-t border-white/10 text-gray-500 animate-[fadeIn_0.5s]">
+                                <p>She leads strategy, investor positioning, and partnerships across the GCC and India. Unlike traditional operators, Sumaiya builds pathways where none exist, simplifying complex systems into powerful business narratives.</p>
+                                <p class="italic border-l-2 border-purple-500 pl-3 my-4 text-gray-300">"The future belongs to companies that don’t react, but decide in advance."</p>
+                                <p>Her vision is to make PredaIoT a movement that redefines industrial intelligence.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. Contact Section -->
+    <section id="contact" class="py-24 bg-[#0a0a1f]">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto bg-[#0f172a] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                <div class="p-8 md:p-12">
+                    <h2 class="text-3xl font-bold font-orbitron text-white mb-2">DEPLOY Q.ADA</h2>
+                    <p class="text-gray-400 mb-8">Initiate your quantum transformation. Direct line to our solutions team.</p>
+                    
+                    <form id="contact-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Full Name</label>
+                                <input type="text" class="w-full bg-black/50 border border-white/20 rounded p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors" placeholder="Ex: John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Company</label>
+                                <input type="text" class="w-full bg-black/50 border border-white/20 rounded p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors" placeholder="Ex: Energy Corp">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-cyan-400 mb-2 uppercase">Industrial Challenge</label>
+                            <textarea id="query" rows="4" class="w-full bg-black/50 border border-white/20 rounded p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors" placeholder="Describe your asset inefficiency or request a pilot demo..."></textarea>
+                        </div>
+                        
+                        <div id="response-area" class="hidden bg-cyan-900/20 border border-cyan-500/30 rounded p-4 text-sm text-gray-300">
+                            <strong class="text-cyan-400 block mb-1">AI Response:</strong>
+                            <p id="response-text">Analyzing...</p>
+                        </div>
+
+                        <button type="submit" id="submit-button" class="w-full py-4 bg-gradient-to-r from-cyan-700 to-blue-700 hover:from-cyan-600 hover:to-blue-600 text-white font-bold font-rajdhani tracking-widest rounded shadow-lg transition-all">
+                            SUBMIT INQUIRY
                         </button>
                     </form>
-                    <div id="response-area" class="mt-8 p-4 bg-gray-800 rounded-lg border border-purple-800 hidden">
-                        <h4 class="text-lg font-bold text-purple-400 mb-2 font-orbitron">PREDAIoT AI Response</h4>
-                        <p id="response-text" class="text-gray-300"></p>
-                        <div id="source-list" class="mt-4 text-xs text-gray-500 italic space-y-1"></div>
+
+                    <div class="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                        <div class="flex items-center gap-2 mb-4 md:mb-0">
+                            <i class="fas fa-envelope text-cyan-500"></i> al.shams.invest@gmail.com
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-phone text-cyan-500"></i> +968 74114028
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </section>
+
+    <!-- 12. Bot Widget -->
+    <div id="bot-widget" class="fixed bottom-6 right-6 z-50 transition-all duration-300 transform translate-y-[120%]">
+        <div class="bg-[#0f172a] border border-cyan-500/50 rounded-xl shadow-2xl w-80 md:w-96 overflow-hidden">
+            <div class="bg-cyan-900/30 p-4 border-b border-white/10 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="font-orbitron text-sm text-white">PREDA-BOT AI</span>
+                </div>
+                <button onclick="toggleBot()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="h-64 p-4 overflow-y-auto font-mono text-xs space-y-3 bg-black/80" id="chat-history">
+                <div class="bg-cyan-900/20 p-2 rounded text-cyan-300 border border-cyan-500/20">
+                    System: Connected to PredaIoT Knowledge Base.<br>
+                    I can analyze your plant data or calculate ROI. What do you need?
+                </div>
+            </div>
+            <div class="p-3 bg-[#0f172a] border-t border-white/10 flex">
+                <input type="text" id="chat-input" placeholder="Enter plant capacity..." class="flex-1 bg-black/50 border border-white/20 rounded-l px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                <button class="bg-cyan-600 px-4 rounded-r text-white hover:bg-cyan-500"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating FAB -->
+    <button onclick="toggleBot()" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-cyan-600 rounded-full shadow-[0_0_20px_rgba(0,243,255,0.4)] flex items-center justify-center text-white hover:scale-110 transition-transform">
+        <i class="fas fa-robot text-xl"></i>
+    </button>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 border-t border-cyan-900/50">
-        <div class="container mx-auto px-4 py-8 text-center text-sm text-gray-500">
-            &copy; <span id="current-year"></span> PREDAIoT. Quantum Intelligence for Industrial Assets.
-            <div class="mt-2 flex justify-center space-x-4">
-                <i data-lucide="linkedin" class="w-4 h-4 text-cyan-500"></i>
-                <i data-lucide="twitter" class="w-4 h-4 text-cyan-500"></i>
-            </div>
+    <footer class="bg-black py-12 border-t border-white/10 text-center">
+        <div class="text-gray-500 text-sm">
+            &copy; 2025 PredaIoT. All Rights Reserved. <br>
+            Patent Pending N/P/2025/0354 | ISO-27001 Compliant
         </div>
     </footer>
 
-    <script type="module">
-        // --- Utility Functions ---
+    <!-- Scripts -->
+    <script>
+        // --- 1. Hidden Cost Calculator Logic ---
+        function calculateLoss() {
+            const energy = parseInt(document.getElementById('energyInput').value);
+            const downtime = parseInt(document.getElementById('downtimeInput').value);
+            const costPerHour = parseInt(document.getElementById('costInput').value);
 
-        // Function to show a temporary message box
-        function showMessage(message, type = 'success', duration = 4000) {
-            const messageBox = document.getElementById('message-box');
-            messageBox.textContent = message;
+            // Update Labels
+            document.getElementById('energyVal').innerText = '$' + energy.toLocaleString();
+            document.getElementById('downtimeVal').innerText = downtime + 'h';
+            document.getElementById('costVal').innerText = '$' + costPerHour.toLocaleString();
 
-            // Set colors based on type
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-700');
-                messageBox.classList.remove('bg-green-700', 'bg-yellow-700');
-            } else if (type === 'warning') {
-                messageBox.classList.add('bg-yellow-700');
-                messageBox.classList.remove('bg-green-700', 'bg-red-700');
-            } else { // success or default
-                messageBox.classList.add('bg-green-700');
-                messageBox.classList.remove('bg-red-700', 'bg-yellow-700');
-            }
+            // Calculation Logic (Simplified Industrial Model)
+            // Bleed = (Downtime * Cost) + (Energy * 15% inefficiency avg)
+            const downtimeLoss = downtime * costPerHour;
+            const energyBleed = energy * 0.15; 
+            const totalBleed = downtimeLoss + energyBleed;
 
-            // Show and then hide
-            messageBox.classList.remove('translate-x-full');
-            messageBox.classList.add('translate-x-0');
+            // PredaIoT Gain (24.57% of bleed)
+            const potentialSavings = totalBleed * 0.2457;
 
-            setTimeout(() => {
-                messageBox.classList.remove('translate-x-0');
-                messageBox.classList.add('translate-x-full');
-            }, duration);
+            // Animate Numbers (Basic)
+            document.getElementById('totalBleed').innerText = '$' + Math.floor(totalBleed).toLocaleString();
+            document.getElementById('savings').innerText = '$' + Math.floor(potentialSavings).toLocaleString();
         }
 
-        // Set current year in footer
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        // Initialize Calculator
+        calculateLoss();
 
-        // Initialize Lucide icons
-        lucide.createIcons();
+        // --- 2. Live Dashboard (Chart.js) ---
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'Vibration (mm/s)',
+                    data: Array(20).fill(0).map(() => Math.random() * 2 + 1),
+                    borderColor: '#00f3ff',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: 0
+                }, {
+                    label: 'Temperature (C)',
+                    data: Array(20).fill(0).map(() => Math.random() * 5 + 40),
+                    borderColor: '#ef4444',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMin: 0, suggestedMax: 60 },
+                    x: { display: false }
+                },
+                animation: false
+            }
+        });
 
-        // --- Gemini API Call Setup ---
+        // Simulate Live Data Stream
+        setInterval(() => {
+            const data = liveChart.data.datasets[0].data;
+            const tempData = liveChart.data.datasets[1].data;
+            
+            // Shift and Push
+            data.shift();
+            tempData.shift();
+            
+            // Random walk
+            let newVib = data[data.length - 1] + (Math.random() - 0.5);
+            if(newVib < 0) newVib = 0.5;
+            if(newVib > 8) newVib = 8; // Spike
+            
+            let newTemp = 45 + Math.random() * 2;
+            
+            data.push(newVib);
+            tempData.push(newTemp);
+            liveChart.update();
 
+            // Log update
+            const log = document.getElementById('systemLog');
+            if(Math.random() > 0.7) {
+                const msgs = [
+                    "Checking Node #4...",
+                    "Optimizing Voltage...",
+                    "Predicting Bearing Load...",
+                    "Syncing with Cloud...",
+                    "Data Packet Received: 4kb"
+                ];
+                const msg = msgs[Math.floor(Math.random() * msgs.length)];
+                const div = document.createElement('div');
+                div.innerText = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+                log.prepend(div);
+                if(log.children.length > 8) log.lastElementChild.remove();
+            }
+
+        }, 800);
+
+        // --- 3. Persona Tabs ---
+        function switchTab(tab) {
+            // Buttons
+            document.getElementById('btn-cfo').className = tab === 'cfo' 
+                ? 'px-8 py-3 rounded-md text-sm font-bold transition-all bg-cyan-600 text-white' 
+                : 'px-8 py-3 rounded-md text-sm font-bold text-gray-400 hover:text-white transition-all';
+            
+            document.getElementById('btn-manager').className = tab === 'manager' 
+                ? 'px-8 py-3 rounded-md text-sm font-bold transition-all bg-purple-600 text-white' 
+                : 'px-8 py-3 rounded-md text-sm font-bold text-gray-400 hover:text-white transition-all';
+            
+            // Content
+            document.getElementById('tab-cfo').classList.toggle('hidden', tab !== 'cfo');
+            document.getElementById('tab-manager').classList.toggle('hidden', tab !== 'manager');
+        }
+
+        // --- 4. Bot Widget & Contact Form AI ---
+        function toggleBot() {
+            const bot = document.getElementById('bot-widget');
+            const isHidden = bot.classList.contains('translate-y-[120%]');
+            if(isHidden) {
+                bot.classList.remove('translate-y-[120%]');
+                bot.classList.add('translate-y-0');
+            } else {
+                bot.classList.add('translate-y-[120%]');
+                bot.classList.remove('translate-y-0');
+            }
+        }
+
+        // Gemini API Logic for Contact Form
         const contactForm = document.getElementById('contact-form');
         const submitButton = document.getElementById('submit-button');
-        const loadingOverlay = document.getElementById('loading-overlay');
         const responseArea = document.getElementById('response-area');
         const responseText = document.getElementById('response-text');
-        const sourceList = document.getElementById('source-list');
 
-        const apiKey = ""; // Canvas will automatically provide the key at runtime
+        // Note: In production, API calls should be handled by a backend proxy to hide the key.
+        // For this demo, we use the key provided by the environment.
+        const apiKey = ""; 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-        // Exponential Backoff Retry Logic
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok && response.status === 429 && i < maxRetries - 1) {
-                        // Rate limit error (429), wait and retry
-                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    }
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response;
-                } catch (error) {
-                    if (i === maxRetries - 1) {
-                        throw error;
-                    }
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userQuery = document.getElementById('query').value;
+            if(!userQuery) return;
 
-
-        async function handleContactSubmit(event) {
-            event.preventDefault();
-            const userQuery = document.getElementById('query').value.trim();
-
-            if (!userQuery) {
-                showMessage("Please enter your inquiry before submitting.", 'warning');
-                return;
-            }
-
-            // Disable button and show loading
             submitButton.disabled = true;
-            submitButton.textContent = "Processing...";
-            loadingOverlay.classList.remove('hidden');
-
+            submitButton.innerText = "PROCESSING...";
+            
             try {
-                // System Instruction: Act as a helpful, professional, and responsive member of the PREDAIoT business development team.
-                // Address the user's query clearly and professionally.
-                const systemPrompt = `You are the PREDAIoT Business Development AI. Your role is to provide concise, professional, and grounded responses to investor and client inquiries.
-                The company, PREDAIoT, is a quantum-enhanced industrial optimization platform.
-                - We offer a patent-pending Quantum AI system (Q.ADA) that drives an average of 24.57% revenue gain by solving complex optimization problems 48x faster.
-                - Key members are Chams Eddine Madi (Founder & CEO) and Sumaiya (Co-Founder & CSO).
-                - Use a professional, futuristic, and confident tone.
-                - Always reference real-time information using the Google Search tool when appropriate (e.g., market trends, technical details).
-                - Keep the response brief, max 3-4 sentences.`;
+                const systemPrompt = `You are the AI Assistant for PredaIoT, a quantum industrial AI company. 
+                Answer the user's inquiry briefly (max 2 sentences). 
+                If they ask about the tech, mention the Q.ADA engine and 24.57% revenue gain.
+                If they ask for a demo, say our team will contact them shortly.`;
 
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
-                    tools: [{ "google_search": {} }], // Use search grounding for up-to-date context
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
                 };
 
-                const response = await fetchWithRetry(apiUrl, {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
+                const data = await response.json();
+                const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Thank you. We have received your query.";
 
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const text = candidate.content.parts[0].text;
-                    responseText.textContent = text;
-                    responseArea.classList.remove('hidden');
-
-                    // Extract and display grounding sources
-                    let sources = [];
-                    const groundingMetadata = candidate.groundingMetadata;
-                    sourceList.innerHTML = '';
-                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                        sources = groundingMetadata.groundingAttributions
-                            .map(attribution => ({
-                                uri: attribution.web?.uri,
-                                title: attribution.web?.title,
-                            }))
-                            .filter(source => source.uri && source.title);
-
-                        if (sources.length > 0) {
-                            sourceList.innerHTML += '<p class="font-bold mt-2">Sources:</p>';
-                            sources.forEach((source, index) => {
-                                const a = document.createElement('a');
-                                a.href = source.uri;
-                                a.target = "_blank";
-                                a.className = "hover:text-cyan-400 block truncate";
-                                a.textContent = `${index + 1}. ${source.title} (${new URL(source.uri).hostname})`;
-                                sourceList.appendChild(a);
-                            });
-                        }
-                    }
-
-                    showMessage("Query processed successfully! See the AI response below.", 'success');
-
-                } else {
-                    const errorMessage = result.error?.message || "An unexpected error occurred during AI processing.";
-                    responseText.textContent = `Error: ${errorMessage}`;
-                    responseArea.classList.remove('hidden');
-                    showMessage("AI Query failed. Please try again.", 'error');
-                }
-            } catch (error) {
-                console.error("Gemini API Error:", error);
-                responseText.textContent = `A network error occurred. Please check your connection. Details: ${error.message}`;
                 responseArea.classList.remove('hidden');
-                showMessage("A severe network error occurred.", 'error');
-            } finally {
-                // Re-enable button and hide loading
-                submitButton.disabled = false;
-                submitButton.textContent = "Submit Quantum Query";
-                loadingOverlay.classList.add('hidden');
-            }
-        }
+                responseText.innerText = aiReply;
 
-        contactForm.addEventListener('submit', handleContactSubmit);
+            } catch (error) {
+                console.error(error);
+                responseArea.classList.remove('hidden');
+                responseText.innerText = "Thank you. Our team will contact you shortly.";
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerText = "SUBMIT INQUIRY";
+            }
+        });
     </script>
 </body>
 </html>

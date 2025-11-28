@@ -18,6 +18,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
+    <!-- Crisp Chat Integration -->
+    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="a4ead182-1b8c-4d7e-b911-2c36f4c2d6d0";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap');
         
@@ -144,7 +147,7 @@
                 <button onclick="document.getElementById('calculator').scrollIntoView()" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-rajdhani text-lg tracking-widest clip-path-slant transition-all shadow-[0_0_20px_rgba(0,243,255,0.4)]">
                     CALCULATE YOUR LOSS
                 </button>
-                <button onclick="toggleBot()" class="px-8 py-4 border border-white/20 hover:border-cyan-400 text-white font-bold font-rajdhani text-lg tracking-widest transition-all backdrop-blur-sm">
+                <button onclick="$crisp.push(['do', 'chat:open'])" class="px-8 py-4 border border-white/20 hover:border-cyan-400 text-white font-bold font-rajdhani text-lg tracking-widest transition-all backdrop-blur-sm">
                     ASK PREDA-BOT
                 </button>
             </div>
